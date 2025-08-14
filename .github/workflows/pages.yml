@@ -25,12 +25,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install deps
-        run: npm ci
+      - name: Install deps (no lock file)
+        run: npm install --no-package-lock
 
-      - name: Downgrade Rollup to JS‑only build
+      - name: Downgrade Rollup to JS-only build
         run: npm install rollup@4.14.1 --save-exact --no-package-lock
 
       - name: Build PWA
