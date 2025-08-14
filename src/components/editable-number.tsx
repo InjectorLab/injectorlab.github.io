@@ -77,6 +77,7 @@ export default function EditableNumber({
             }
             const delta = e.key === "ArrowUp" ? step : -step;
 
+            // @ts-ignore
             setText(String(clamp(current + delta as number, min, max)));
         }
     };
