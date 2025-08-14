@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {Box, Input, Button, Stack} from "@chakra-ui/react";
 import { useConnection } from "../../context/connection-context.tsx";
+import LauncherDownloadButton from "../launcher-download.tsx";
 
 const FALLBACK_ADDRESS = "127.0.0.1";
 
@@ -63,6 +64,8 @@ export default function ConnectionControl() {
                         Отключиться
                     </Button>
                 )}
+
+                <LauncherDownloadButton />
             </Stack>
         </Box>
     );
