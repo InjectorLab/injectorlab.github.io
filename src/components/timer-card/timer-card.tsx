@@ -13,7 +13,7 @@ function clampToRange(value: number, min: number, max: number): number {
 }
 
 export default function TimerCard() {
-    const { status: connectionStatus, send } = useConnection();
+    const { status: connectionStatus, send, onMessage } = useConnection();
     const isConnected = connectionStatus === "open";
 
     const [hours, setHours] = React.useState(0);
@@ -21,70 +21,42 @@ export default function TimerCard() {
     const [seconds, setSeconds] = React.useState(10);
     const [running, setRunning] = React.useState(false);
 
-    const timerRef = React.useRef<any | null>(null);
-
-    function getTotalSeconds(): number {
-        return hours * 3600 + minutes * 60 + seconds;
-    }
-
-    function tickDown() {
-        setSeconds((prevSec) => {
-            if (prevSec > 0) {
-                return prevSec - 1;
-            } else {
-                setMinutes((prevMin) => {
-                    if (prevMin > 0) {
-                        setSeconds(59);
-                        return prevMin - 1;
-                    } else {
-                        setHours((prevHour) => {
-                            if (prevHour > 0) {
-                                setMinutes(59);
-                                setSeconds(59);
-                                return prevHour - 1;
-                            } else {
-                                stopTimer();
-                                return 0;
-                            }
-                        });
-                        return 0;
-                    }
-                });
-                return 0;
-            }
-        });
-
-        send({ type: "inj.open", pattern: [1, 2, 3, 4], repeat: 100 });
+    function getTotalMs(): number {
+        return (hours * 3600 + minutes * 60 + seconds) * 1000;
     }
 
     function startTimer() {
-        if (!isConnected) {
-            return;
-        }
-        if (getTotalSeconds() <= 0) {
+        if (!isConnected || getTotalMs() <= 0) {
             return;
         }
 
-        setRunning(true);
-        timerRef.current = window.setInterval(tickDown, 1000);
+        send({ type: "timer.start", time: getTotalMs() });
     }
 
     function stopTimer() {
-        if (timerRef.current !== null) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-        send({ type: "inj.stop" });
-        setRunning(false);
+        send({ type: "timer.stop" });
     }
 
     React.useEffect(() => {
-        return () => {
-            if (timerRef.current !== null) {
-                clearInterval(timerRef.current);
+        const off = onMessage((msg: any) => {
+            if (msg?.type === "timer.status") {
+                setRunning(Boolean(msg.running));
+                const remaining = Number(msg.remaining) ?? 0;
+
+                const h = Math.floor(remaining / 3600000);
+                const m = Math.floor((remaining % 3600000) / 60000);
+                const s = Math.floor((remaining % 60000) / 1000);
+
+                setHours(h);
+                setMinutes(m);
+                setSeconds(s);
             }
-        };
-    }, []);
+        });
+
+        send({ type: "timer.status" });
+
+        return () => off?.();
+    }, [onMessage, send]);
 
     return (
         <CardShell>
@@ -154,7 +126,7 @@ export default function TimerCard() {
                         colorPalette="green"
                         onClick={startTimer}
                         w="100%"
-                        disabled={!isConnected || getTotalSeconds() <= 0}
+                        disabled={!isConnected || getTotalMs() <= 0}
                     >
                         Старт
                     </Button>

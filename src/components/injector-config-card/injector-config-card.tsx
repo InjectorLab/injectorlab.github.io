@@ -7,12 +7,13 @@ import InjectorStatusView from "./injector-status-view";
 import InjectorShotControl from "./injector-shot-control";
 
 export default function InjectorConfigCard() {
-    const { onMessage } = useConnection();
+    const { onMessage, send } = useConnection();
     const [injStatus, setInjStatus] = useState<InjectorStatus | undefined>(undefined);
 
     useEffect(() => {
         const off = onMessage((msg: any) => {
             if (msg?.type === "inj.status") {
+
                 setInjStatus({
                     running: Boolean(msg.running),
                     delay: Number(msg.delay) ?? 0,
@@ -20,6 +21,9 @@ export default function InjectorConfigCard() {
                 });
             }
         });
+
+        send({type: "inj.status"});
+
         return () => off?.();
     }, [onMessage]);
 

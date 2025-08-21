@@ -83,7 +83,7 @@ export default function EditableNumber({
     };
 
     return (
-        <Editable.Root value={text} onValueChange={handleChange} justifyContent="flex-end" disabled={disabled}>
+        <Editable.Root value={text} onValueChange={handleChange} onValueCommit={() => commit()} justifyContent="flex-end" disabled={disabled}>
             {!disabled && (
                 <Editable.Control>
                     <Editable.EditTrigger asChild>
