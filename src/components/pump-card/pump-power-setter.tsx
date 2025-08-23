@@ -3,12 +3,12 @@ import { useConnection } from "../../context/connection-context.tsx";
 import type { PumpStatus } from "./pump.type.tsx";
 import EditableNumber from "../editable-number.tsx";
 
-export default function PumpCutoffSetter(props: { pumpStatus: PumpStatus | undefined }) {
+export default function PumpPowerSetter(props: { pumpStatus: PumpStatus | undefined }) {
     const { pumpStatus } = props;
     const { status: connectionStatus, send } = useConnection();
     const isConnected = connectionStatus === "open";
 
-    function handleApplyCutoff(value: number) {
+    function handleApplyPower(value: number) {
         if (!isConnected) {
             return;
         }
@@ -20,8 +20,8 @@ export default function PumpCutoffSetter(props: { pumpStatus: PumpStatus | undef
         send({
             type: "pump.set",
             on: pumpStatus.on,
-            cutoff: value,
-            max: pumpStatus.max
+            cutoff: pumpStatus.cutoff,
+            max: value
         });
     }
 
@@ -32,10 +32,10 @@ export default function PumpCutoffSetter(props: { pumpStatus: PumpStatus | undef
     }
 
     return (
-        <EditableNumber value={pumpStatus?.cutoff}
-                        unit={"мВ"}
-                        onSubmit={handleApplyCutoff}
-                        min={0}
-                        max={9999} />
+        <EditableNumber value={pumpStatus?.max}
+                        unit={"%"}
+                        onSubmit={handleApplyPower}
+                        min={10}
+                        max={100} />
     );
 }

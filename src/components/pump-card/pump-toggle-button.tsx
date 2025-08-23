@@ -12,7 +12,7 @@ export default function PumpToggleButton({pumpStatus}: { pumpStatus: PumpStatus 
     }
 
     const handleToggle = () => {
-        send({ type: "pump.set", on: !pumpStatus.on, cutoff: pumpStatus.cutoff });
+        send({ type: "pump.set", on: !pumpStatus.on, cutoff: pumpStatus.cutoff, max: pumpStatus.max });
     };
 
     return (

@@ -9,7 +9,7 @@ import PumpToggleButton from "./pump-toggle-button.tsx";
 
 
 export default function PumpCard() {
-    const { status: connectionStatus, onMessage } = useConnection();
+    const {status: connectionStatus, onMessage} = useConnection();
 
     const isConnected = connectionStatus === "open";
 
@@ -21,12 +21,14 @@ export default function PumpCard() {
                 return;
             }
 
-            const { on, pressure, cutoff } = message as any;
+            const {on, pressure, cutoff, power, max} = message as any;
 
             setPumpStatus({
                 on: !!on,
                 pressure: Number(pressure) || 0,
                 cutoff: Number(cutoff),
+                power: Number(power),
+                max: Number(max)
             });
         });
     }, [onMessage]);
@@ -40,11 +42,11 @@ export default function PumpCard() {
     return (
         <CardShell>
             <Stack gap={3} h="100%" justifyContent="space-between">
-                <PumpStatusView pumpStatus={pumpStatus} />
+                <PumpStatusView pumpStatus={pumpStatus}/>
 
-                <SimpleGrid columns={{ base: 1, sm: 2 }} gap={2}>
+                <SimpleGrid columns={{base: 1, sm: 2}} gap={2}>
                     <Box gridColumn="1 / -1">
-                        <PumpToggleButton pumpStatus={pumpStatus} />
+                        <PumpToggleButton pumpStatus={pumpStatus}/>
                     </Box>
                 </SimpleGrid>
             </Stack>
